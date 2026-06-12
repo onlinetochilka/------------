@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фокус-таймер — Premium Soft UI</title>
+
+    <!-- Дизайн-система Точилки — базовые токены и глобальные стили -->
+    <link rel="stylesheet" href="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-theme.css">
+
+    <style>
+        /* ─── Локальная палитра неоморфизма ──────────────────────────────────── */
+        :root {
+            --bg-color:    #e0e5ec;
+            --shadow-light: #ffffff;
+            --shadow-dark:  #b8c2d1;
+
+            --brand-red:  #B71234;
+            --brand-teal: #006584;
+            --theme-color: #006584;
+            --color-rest:  #4CAF50;
+
+            --text-main:  #2d3436;
+            --text-muted: #747d8c;
+
+            --shadow-sm:       4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+            --shadow-sm-inset: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
+            --shadow-md:       6px 6px 16px var(--shadow-dark), -6px -6px 16px var(--shadow-light);
+            --shadow-md-inset: inset 5px 5px 12px var(--shadow-dark), inset -5px -5px 12px var(--shadow-light);
+            --shadow-lg:       14px 14px 36px var(--shadow-dark), -14px -14px 36px var(--shadow-light);
+            --shadow-lg-inset: inset 10px 10px 24px var(--shadow-dark), inset -10px -10px 24px var(--shadow-light);
+            --shadow-xl:       20px 20px 60px var(--shadow-dark), -20px -20px 60px var(--shadow-light);
+
+            --error-glow: 0 0 0 2px var(--brand-red);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.7s ease, color 0.7s ease;
+        }
+
+        /* ─── Тёмный режим «Отдых» ───────────────────────────────────────────── */
+        body.rest-mode {
+            --bg-color:     #1c2433;
+            --shadow-light: #263044;
+            --shadow-dark:  #0e131c;
+            --text-main:    #e4eaf2;
+            --text-muted:   #8a9bb5;
+            background: linear-gradient(160deg, #0f1520 0%, #1a2438 45%, #121a28 100%);
+        }
+
+        body.rest-mode .btn-start {
+            box-shadow: 8px 8px 24px rgba(0,0,0,0.35), -4px -4px 16px var(--shadow-light);
+        }
+
+        /* ─── Оболочка приложения ────────────────────────────────────────────── */
+        .app-shell {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* ─── Карточка ──────────────────────────────────────────────────────── */
+        .app-card.card {
+            background: var(--bg-color);
+            border-radius: 40px;
+            padding: 45px 35px 35px;
+            width: 100%;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.7s ease, box-shadow 0.7s ease, border-radius 0.5s ease;
+        }
+
+        .card-chrome {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+        }
+
+        /* ─── Шапка ─────────────────────────────────────────────────────────── */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            width: 100%;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            filter: drop-shadow(3px 3px 6px rgba(184,194,209,0.6)) drop-shadow(-2px -2px 4px #ffffff);
+            animation: spinLogo 12s linear infinite;
+            animation-play-state: paused;
+        }
+
+        body.rest-mode .header-logo {
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4)) drop-shadow(-2px -2px 4px rgba(255,255,255,0.08));
+        }
+
+        .header-logo.running { animation-play-state: running; }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .header-title  { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.5px; line-height: 1.2; }
+        .header-slogan { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+        @keyframes spinLogo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* ─── Сетка режимов 2×2 ──────────────────────────────────────────────── */
+        .modes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 16px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .mode-btn {
+            background: var(--bg-color);
+            border: none;
+            color: var(--text-muted);
+            padding: 13px 12px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease, background 0.7s ease, box-shadow 0.7s ease;
+            box-shadow: var(--shadow-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 46px;
+        }
+
+        .mode-btn:hover { color: var(--text-main); }
+        .mode-btn.active { color: var(--theme-color); box-shadow: var(--shadow-md-inset); }
+
+        /* Tooltip Pomodoro */
+        .mode-info {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            color: var(--text-muted);
+            cursor: help;
+            flex-shrink: 0;
+            transition: color 0.3s ease;
+        }
+
+        .mode-info svg { width: 14px; height: 14px; pointer-events: none; }
+
+        .mode-info:hover,
+        .mode-info:focus-visible { color: var(--brand-teal); outline: none; }
+
+        .mode-tooltip {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(6px);
+            width: 220px;
+            padding: 12px 14px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-size: 0.72rem;
+            font-weight: 500;
+            line-height: 1.45;
+            border-radius: 14px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+            z-index: 200;
+            text-align: left;
+        }
+
+        .mode-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--bg-color);
+        }
+
+        .mode-info:hover .mode-tooltip,
+        .mode-info:focus-visible .mode-tooltip,
+        .mode-info.open .mode-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ─── Подменю настроек ───────────────────────────────────────────────── */
+        .submenu-container {
+            width: 100%;
+            min-height: 45px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .sub-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .sub-toggle {
+            background: var(--bg-color);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease, background 0.7s ease;
+        }
+
+        .sub-toggle.active { color: var(--theme-color); box-shadow: var(--shadow-sm-inset); }
+
+        .sub-input {
+            background: var(--bg-color);
+            border: none;
+            width: 55px;
+            padding: 8px;
+            text-align: center;
+            border-radius: 10px;
+            color: var(--theme-color);
+            font-size: 1rem;
+            font-weight: 700;
+            outline: none;
+            box-shadow: var(--shadow-sm-inset);
+            transition: box-shadow 0.3s ease, color 0.3s ease, background 0.7s ease;
+        }
+
+        .sub-input.error {
+            box-shadow: var(--shadow-sm-inset), var(--error-glow);
+            color: var(--brand-red);
+            animation: shakeInput 0.4s ease;
+        }
+
+        @keyframes shakeInput {
+            0%, 100% { transform: translateX(0); }
+            20%       { transform: translateX(-4px); }
+            40%       { transform: translateX(4px); }
+            60%       { transform: translateX(-3px); }
+            80%       { transform: translateX(3px); }
+        }
+
+        /* ─── Сцена таймера (хронограф + управление) ───────────────────────── */
+        .timer-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            transition: all 0.5s ease;
+        }
+
+        .chrono-outer {
+            width: 290px;
+            height: 290px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 12px;
+            transition: transform 0.5s ease, box-shadow 0.5s ease,
+                        background 0.7s ease;
+        }
+
+        .chrono-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-lg-inset);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.7s ease, box-shadow 0.7s ease;
+        }
+
+        .chrono-ticks { position: absolute; top: 50%; left: 50%; width: 90%; height: 90%; transform: translate(-50%, -50%); pointer-events: none; }
+        .chrono-ticks circle.thick { fill: none; stroke: rgba(163,177,198,0.5); stroke-width: 2.5; stroke-dasharray: 1 11.56; }
+        .chrono-ticks circle.thin  { fill: none; stroke: rgba(163,177,198,0.3); stroke-width: 1;   stroke-dasharray: 1 2.31; }
+
+        body.rest-mode .chrono-ticks circle.thick { stroke: rgba(120,140,170,0.45); }
+        body.rest-mode .chrono-ticks circle.thin  { stroke: rgba(120,140,170,0.25); }
+
+        .progress-ring {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            transform: rotate(-90deg);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: var(--theme-color);
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+        }
+
+        .time-text {
+            position: relative;
+            z-index: 20;
+            font-size: 5rem;
+            font-weight: 300;
+            line-height: 1;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8), -1px -1px 2px rgba(184,194,209,0.3);
+            transition: font-size 0.3s, text-shadow 0.7s ease;
+        }
+
+        body.rest-mode .time-text {
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.35), -1px -1px 2px rgba(255,255,255,0.06);
+        }
+
+        .time-text.long { font-size: 3.5rem; }
+
+        /* ─── Трекер циклов ──────────────────────────────────────────────────── */
+        .dots-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 26px;
+            justify-content: center;
+            height: 14px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+            transition: all 0.3s ease, background 0.7s ease;
+        }
+
+        .dot.filled {
+            background: var(--theme-color);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
+        }
+
+        /* ─── Кнопки управления ──────────────────────────────────────────────── */
+        .controls {
+            display: flex;
+            gap: 24px;
+            width: 100%;
+            justify-content: center;
+            transition: all 0.5s ease;
+        }
+
+        .btn {
+            border: none;
+            padding: 18px 28px;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease, background 0.7s ease, box-shadow 0.7s ease;
+            flex: 1;
+            max-width: 160px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .btn-reset { background: var(--bg-color); color: var(--text-muted); box-shadow: var(--shadow-md); }
+        .btn-reset:active,
+        .btn-reset.active-press { box-shadow: var(--shadow-md-inset); color: var(--text-main); }
+
+        .btn-start {
+            background: var(--brand-red);
+            color: #ffffff;
+            box-shadow: 8px 8px 24px rgba(183,18,52,0.35), -8px -8px 20px var(--shadow-light);
+        }
+
+        .btn-start.active-press {
+            background: var(--theme-color);
+            box-shadow: inset 6px 6px 14px rgba(0,0,0,0.25), inset -4px -4px 10px rgba(255,255,255,0.15);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ─── Zen-свитч (фиксированный в правом верхнем углу) ───────────────── */
+        .zen-switch {
+            position: fixed;
+            top: 22px;
+            right: 28px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            z-index: 300;
+            transition: all 0.5s ease;
+        }
+
+        .zen-switch input { display: none; }
+
+        .zen-track {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-sm-inset);
+            position: relative;
+            transition: box-shadow 0.3s ease, background 0.7s ease;
+        }
+
+        .zen-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-sm);
+            transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .zen-switch input:checked + .zen-track .zen-thumb {
+            left: 23px;
+            background: var(--brand-teal);
+            box-shadow: 2px 2px 6px rgba(0,101,132,0.4), -1px -1px 4px var(--shadow-light);
+        }
+
+        .zen-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .zen-switch input:checked ~ .zen-label { color: var(--brand-teal); }
+
+        body.zen-mode .zen-switch .zen-track {
+            box-shadow: var(--shadow-md-inset);
+        }
+
+        /* ─── Режим ФОКУСА ───────────────────────────────────────────────────── */
+        body.zen-mode .app-card.card {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+            padding: 0;
+            pointer-events: none;
+        }
+
+        body.zen-mode .card-chrome {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-8px);
+            position: absolute;
+            width: 100%;
+        }
+
+        .card-chrome-bottom {
+            position: relative;
+            margin-top: 4px;
+        }
+
+        body.zen-mode .timer-stage {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        body.zen-mode .timer-stage .chrono-outer,
+        body.zen-mode .timer-stage .controls,
+        body.zen-mode .timer-stage .controls .btn {
+            pointer-events: auto;
+        }
+
+        body.zen-mode .dots-container {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
+        body.zen-mode .chrono-outer {
+            transform: scale(1.4);
+            margin-bottom: 36px;
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.12),
+                0 -20px 40px #ffffff;
+        }
+
+        body.zen-mode.rest-mode .chrono-outer {
+            box-shadow:
+                0 24px 48px rgba(0, 0, 0, 0.45),
+                0 -16px 36px rgba(255, 255, 255, 0.04);
+        }
+
+        body.zen-mode .controls {
+            transform: none;
+            gap: 20px;
+        }
+
+        /* ─── Панель «Атмосфера» ─────────────────────────────────────────────── */
+        .atmosphere-section {
+            width: 100%;
+            margin-top: 24px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .atmosphere-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .atmosphere-toggle input { display: none; }
+
+        .atm-switch-track {
+            width: 44px;
+            height: 24px;
+            border-radius: 12px;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-sm-inset);
+            position: relative;
+            transition: box-shadow 0.3s ease, background 0.7s ease;
+        }
+
+        .atm-switch-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-sm);
+            transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+        }
+
+        .atmosphere-toggle input:checked + .atm-switch-track {
+            box-shadow: var(--shadow-sm-inset);
+        }
+
+        .atmosphere-toggle input:checked + .atm-switch-track .atm-switch-thumb {
+            left: 23px;
+            background: var(--brand-teal);
+        }
+
+        .atmosphere-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .atmosphere-toggle input:checked ~ .atmosphere-label { color: var(--brand-teal); }
+
+        .atmosphere-panel {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.45s ease, opacity 0.35s ease, margin 0.35s ease;
+            margin-top: 0;
+        }
+
+        .atmosphere-panel.open {
+            max-height: 200px;
+            opacity: 1;
+            margin-top: 18px;
+        }
+
+        .atmosphere-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            justify-items: center;
+        }
+
+        .sound-btn {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-md);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease, background 0.7s ease, box-shadow 0.7s ease;
+        }
+
+        .sound-btn svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+
+        .sound-btn:hover { color: var(--text-main); transform: translateY(-1px); }
+        .sound-btn.active { color: var(--brand-teal); box-shadow: var(--shadow-md-inset); }
+
+        .sound-tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            padding: 5px 10px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+            z-index: 50;
+        }
+
+        .sound-btn:hover .sound-tooltip,
+        .sound-btn:focus-visible .sound-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ─── Адаптив ────────────────────────────────────────────────────────── */
+        @media (max-width: 480px) {
+            .app-card.card { padding: 35px 20px 28px; border-radius: 32px; }
+            .chrono-outer   { width: 250px; height: 250px; }
+            .time-text      { font-size: 4rem; }
+            .time-text.long { font-size: 2.8rem; }
+            .mode-btn       { padding: 11px 10px; font-size: 0.78rem; }
+            .btn            { padding: 15px 20px; font-size: 0.9rem; }
+            .header-title   { font-size: 1.3rem; }
+            .sound-btn      { width: 44px; height: 44px; }
+            .atmosphere-grid { gap: 10px; }
+            .zen-switch     { top: 14px; right: 16px; }
+            body.zen-mode .chrono-outer { transform: scale(1.25); margin-bottom: 28px; }
+        }
+    </style>
+</head>
+
+<body class="tochilka-theme">
+
+    <div class="app-shell">
+
+        <!-- ── Zen-свитч (фиксированный, всегда поверх) ───────────────────── -->
+        <label class="zen-switch" id="zenSwitch" title="Режим Фокуса: парящий таймер">
+            <input type="checkbox" id="zenToggle" aria-label="Включить режим Фокуса">
+            <span class="zen-track"><span class="zen-thumb"></span></span>
+            <span class="zen-label">Фокус</span>
+        </label>
+
+        <!-- ── Карточка ─────────────────────────────────────────────────────── -->
+        <div class="app-card card" role="main">
+
+            <div class="card-chrome">
+
+            <header class="header">
+                <img
+                    src="https://raw.githubusercontent.com/onlinetochilka/theme/main/tochilka-logo.svg"
+                    class="header-logo"
+                    id="brandLogo"
+                    alt="Логотип Точилки"
+                    width="48"
+                    height="48"
+                >
+                <div class="header-text">
+                    <div class="header-title">Фокус-таймер</div>
+                    <div class="header-slogan">Внимание к главному</div>
+                </div>
+            </header>
+
+            <!-- ── Сетка режимов 2×2 ──────────────────────────────────────── -->
+            <nav class="modes-grid" aria-label="Режимы таймера">
+                <button class="mode-btn active" data-mode="work" aria-pressed="true">Работа</button>
+                <button class="mode-btn" data-mode="rest" aria-pressed="false">Отдых</button>
+                <button class="mode-btn" data-mode="pomodoro" aria-pressed="false">
+                    Pomodoro
+                    <span class="mode-info" tabindex="0" role="button" aria-label="Подробнее о Pomodoro">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        <span class="mode-tooltip">Метод интервальной работы: 25 минут полного фокуса и 5 минут отдыха (или 50/10 для глубоких задач). Помогает не отвлекаться и предотвращает выгорание.</span>
+                    </span>
+                </button>
+                <button class="mode-btn" data-mode="lesson" aria-pressed="false">Урок</button>
+            </nav>
+
+            <div id="submenuContainer" class="submenu-container" aria-label="Настройки выбранного режима"></div>
+
+            </div><!-- /.card-chrome -->
+
+            <!-- ── Сцена таймера (центрируется в zen-mode) ─────────────────── -->
+            <div class="timer-stage" id="timerStage">
+            <div class="chrono-outer" aria-hidden="true">
+                <div class="chrono-inner" id="chronoInner">
+                    <svg class="chrono-ticks" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle class="thick" cx="50" cy="50" r="48" />
+                        <circle class="thin"  cx="50" cy="50" r="44" />
+                    </svg>
+                    <svg class="progress-ring" viewBox="0 0 250 250">
+                        <circle class="progress-ring-circle" id="progressCircle" cx="125" cy="125" r="118"></circle>
+                    </svg>
+                    <div
+                        class="time-text"
+                        id="timeDisplay"
+                        role="timer"
+                        aria-live="polite"
+                        aria-atomic="true"
+                        aria-label="Осталось: 25:00"
+                    >25:00</div>
+                </div>
+            </div>
+
+            <div id="dotsContainer" class="dots-container" aria-label="Прогресс циклов"></div>
+
+            <div class="controls">
+                <button class="btn btn-reset" id="resetBtn" aria-label="Сбросить таймер">Сброс</button>
+                <button class="btn btn-start" id="startBtn" aria-label="Запустить таймер">Старт</button>
+            </div>
+            </div><!-- /.timer-stage -->
+
+            <!-- ── Панель «Атмосфера» (внизу карточки) ─────────────────────── -->
+            <div class="card-chrome card-chrome-bottom">
+            <div class="atmosphere-section" id="atmosphereSection">
+                <label class="atmosphere-toggle" id="atmosphereToggleLabel">
+                    <input type="checkbox" id="atmosphereToggle" aria-label="Включить атмосферу">
+                    <span class="atm-switch-track"><span class="atm-switch-thumb"></span></span>
+                    <span class="atmosphere-label">Атмосфера</span>
+                </label>
+
+                <div class="atmosphere-panel" id="atmospherePanel" aria-hidden="true">
+                    <div class="atmosphere-grid" id="atmosphereGrid" role="group" aria-label="Выбор фонового звука">
+                        <!-- Кнопки генерируются app.js -->
+                    </div>
+                </div>
+            </div>
+            </div><!-- /.card-chrome-bottom -->
+
+        </div><!-- /.app-card -->
+
+    </div><!-- /.app-shell -->
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
