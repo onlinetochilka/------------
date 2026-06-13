@@ -19,15 +19,15 @@ const AMBIENT_SOUNDS = {
 
 const SOUND_ICONS = {
     cafe: `<svg viewBox="0 0 24 24"><path d="M6 8h12v6a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4V8z"/><path d="M18 9h1a3 3 0 0 1 0 6h-1"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>`,
-    rain: `<svg viewBox="0 0 24 24"><path d="M6 16a4 4 0 0 1-.88-7.9A5 5 0 1 1 16 9a3.5 3.5 0 0 1 .5 7"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="17" x2="12" y2="19"/><line x1="16" y1="19" x2="16" y2="21"/></svg>`,
-    river: `<svg viewBox="0 0 24 24"><path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 16c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>`,
-    ocean: `<svg viewBox="0 0 24 24"><path d="M2 13c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3-1.5 4.5 0"/><path d="M2 17c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3-1.5 4.5 0"/></svg>`,
-    jungle: `<svg viewBox="0 0 24 24"><path d="M12 22V12"/><path d="M12 12C9 8 5 7 3 10c3 1 6 3 9 6"/><path d="M12 12c3-4 7-5 9-2-3 1-6 3-9 6"/></svg>`,
-    train: `<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="12" rx="2"/><path d="M4 11h16"/><path d="M8 20l-2 2"/><path d="M16 20l2 2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>`,
-    storm: `<svg viewBox="0 0 24 24"><path d="M6 16a4 4 0 0 1-.88-7.9A5 5 0 1 1 16 9a3.5 3.5 0 0 1 .5 7"/><polyline points="13 13 10 18 13 18 11 22"/></svg>`,
-    purr: `<svg viewBox="0 0 24 24"><path d="M12 5c-3 0-5 2-5 5v4c0 3 2 5 5 5s5-2 5-5v-4c0-3-2-5-5-5z"/><path d="M8 8l-2-2"/><path d="M16 8l2-2"/><path d="M9 14h1"/><path d="M14 14h1"/></svg>`,
-    birds: `<svg viewBox="0 0 24 24"><path d="M16 7c2 0 4 1 5 3-2 0-3 1-4 2"/><path d="M8 7C6 7 4 8 3 10c2 0 3 1 4 2"/><path d="M12 12v6"/><path d="M8 20h8"/></svg>`,
-    night: `<svg viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/><circle cx="18" cy="6" r="1"/><circle cx="20" cy="10" r="0.5"/><circle cx="16" cy="4" r="0.5"/></svg>`,
+    rain: `<svg viewBox="0 0 24 24"><path d="M6 14a4 4 0 0 1-.88-7.9A5 5 0 1 1 16 7a3.5 3.5 0 0 1 .5 7"/><line x1="8" y1="17" x2="7" y2="21"/><line x1="12" y1="16" x2="11" y2="20"/><line x1="16" y1="17" x2="15" y2="21"/><line x1="10" y1="19" x2="9" y2="22"/><line x1="14" y1="19" x2="13" y2="22"/></svg>`,
+    river: `<svg viewBox="0 0 24 24"><path d="M3 18c3-1 5-3 8-3s5 2 8 3"/><path d="M3 14c3-1 5-3 8-3s5 2 8 3"/><path d="M4 6c2 2 4 3 6 2"/><path d="M14 5c2 2 4 3 6 2"/><circle cx="6" cy="8" r="1.5"/><circle cx="18" cy="7" r="1.5"/></svg>`,
+    jungle: `<svg viewBox="0 0 24 24"><path d="M12 22V10"/><path d="M12 10C8 6 4 5 2 8c3 1 6 3 10 6"/><path d="M12 10c4-4 8-5 10-2-3 1-6 3-10 6"/><path d="M8 4l1 3"/><path d="M16 4l-1 3"/></svg>`,
+    train: `<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="11" rx="2"/><path d="M3 12h18"/><path d="M7 20l-2 2"/><path d="M17 20l2 2"/><circle cx="8" cy="16" r="1.5"/><circle cx="16" cy="16" r="1.5"/><path d="M12 5V3"/></svg>`,
+    storm: `<svg viewBox="0 0 24 24"><path d="M5 15a4 4 0 0 1-.75-7.9A5 5 0 0 1 15 6a3.5 3.5 0 0 1 .5 7H5z"/><polyline points="12 11 9 16 12 16 10 21"/></svg>`,
+    purr: `<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="6"/><path d="M8 9l-2-3"/><path d="M16 9l2-3"/><path d="M9 14h1"/><path d="M14 14h1"/><path d="M10.5 16.5c.8.8 2.2.8 3 0"/></svg>`,
+    birds: `<svg viewBox="0 0 24 24"><path d="M4 15c2-3 5-4 8-3 3-1 6 0 8 3"/><path d="M7 12l-2-3"/><path d="M17 12l2-3"/><path d="M12 15l-1 4"/><path d="M10 19h4"/></svg>`,
+    night: `<svg viewBox="0 0 24 24"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/><circle cx="17" cy="6" r="1"/><circle cx="19" cy="10" r="0.6"/><circle cx="14" cy="4" r="0.6"/></svg>`,
+    ocean: `<svg viewBox="0 0 24 24"><path d="M2 14c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><path d="M2 18c2-1.5 4-1.5 6 0s4 1.5 6 0 4-1.5 6 0"/><circle cx="18" cy="5" r="2"/><path d="M18 3v-1"/></svg>`,
 };
 
 const COLOR_WORK = 'var(--brand-teal)';
@@ -43,6 +43,8 @@ class PomodoroApp {
     #fadeTimer = null;
 
     #finishAudio = null;
+    #ambientDuckedForFinish = false;
+    #ambientPreFinishVolume = 0.35;
 
     #isZenMode = false;
 
@@ -152,7 +154,7 @@ class PomodoroApp {
     #buildAtmosphereGrid() {
         const { atmosphereGrid } = this.#els;
         atmosphereGrid.innerHTML = Object.entries(AMBIENT_SOUNDS).map(([id, { label }]) =>
-            `<button class="sound-btn" data-sound="${id}" aria-label="${label}" type="button">
+            `<button class="sound-btn" data-sound="${id}" aria-label="${label}" title="${label}" type="button">
                 ${SOUND_ICONS[id]}
                 <span class="sound-tooltip">${label}</span>
             </button>`
@@ -358,12 +360,41 @@ class PomodoroApp {
         }
     }
 
+    #duckAmbientForFinish() {
+        if (!this.#ambientAudio || this.#ambientAudio.paused) return;
+
+        this.#ambientDuckedForFinish = true;
+        this.#ambientPreFinishVolume = this.#ambientAudio.volume;
+        this.#clearFadeTimer();
+        this.#fadeVolume(this.#ambientAudio, this.#ambientAudio.volume, 0, FADE_MS, () => {
+            this.#ambientAudio?.pause();
+        });
+    }
+
+    #restoreAmbientAfterFinish() {
+        if (!this.#ambientDuckedForFinish) return;
+        this.#ambientDuckedForFinish = false;
+
+        if (!this.#ambientAudio || !this.#currentSoundId || !this.#atmosphereEnabled) return;
+
+        this.#ambientAudio.play().then(() => {
+            this.#fadeVolume(this.#ambientAudio, 0, this.#ambientPreFinishVolume, FADE_MS);
+        }).catch(() => {});
+    }
+
     #playFinishSound() {
         this.#stopFinishSound();
+        this.#duckAmbientForFinish();
+
         this.#finishAudio = new Audio('./sounds/finish.mp3');
         this.#finishAudio.volume = 1;
+        this.#finishAudio.addEventListener('ended', () => {
+            this.#finishAudio = null;
+            this.#restoreAmbientAfterFinish();
+        }, { once: true });
         this.#finishAudio.play().catch(() => {
             console.warn('[Timer] Не удалось воспроизвести finish.mp3');
+            this.#restoreAmbientAfterFinish();
         });
     }
 
@@ -373,6 +404,7 @@ class PomodoroApp {
             this.#finishAudio.currentTime = 0;
             this.#finishAudio = null;
         }
+        this.#ambientDuckedForFinish = false;
     }
 
     #showNotification(title, body) {
@@ -465,6 +497,7 @@ class PomodoroApp {
     }
 
     #resumeAmbient() {
+        if (this.#ambientDuckedForFinish) return;
         if (this.#ambientAudio && this.#currentSoundId && this.#atmosphereEnabled) {
             this.#ambientAudio.play().catch(() => {});
         }

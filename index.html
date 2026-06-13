@@ -36,6 +36,11 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
@@ -43,8 +48,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+            padding: 12px;
             transition: background 0.7s ease, color 0.7s ease;
         }
 
@@ -67,18 +74,27 @@
             position: relative;
             width: 100%;
             max-width: 480px;
+            height: 100%;
+            max-height: calc(100vh - 24px);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
         }
 
         /* ─── Карточка ──────────────────────────────────────────────────────── */
         .app-card.card {
             background: var(--bg-color);
             border-radius: 40px;
-            padding: 45px 35px 35px;
+            padding: 28px 30px 22px;
             width: 100%;
+            height: 100%;
+            max-height: 100%;
             box-shadow: var(--shadow-xl);
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 0;
+            overflow: visible;
             transition: background 0.7s ease, box-shadow 0.7s ease, border-radius 0.5s ease;
         }
 
@@ -87,6 +103,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex-shrink: 1;
+            min-height: 0;
             transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
         }
 
@@ -96,8 +114,9 @@
             align-items: center;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
             width: 100%;
+            flex-shrink: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -133,7 +152,8 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             width: 100%;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -221,11 +241,12 @@
         /* ─── Подменю настроек ───────────────────────────────────────────────── */
         .submenu-container {
             width: 100%;
-            min-height: 45px;
-            margin-bottom: 22px;
+            min-height: 40px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-shrink: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -288,22 +309,25 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            justify-content: center;
             transition: all 0.5s ease;
         }
 
         .chrono-outer {
-            width: 290px;
-            height: 290px;
+            width: min(290px, 36vh, 72vw);
+            height: min(290px, 36vh, 72vw);
+            flex-shrink: 1;
             border-radius: 50%;
             background: var(--bg-color);
             box-shadow: var(--shadow-lg);
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
             padding: 12px;
-            transition: transform 0.5s ease, box-shadow 0.5s ease,
-                        background 0.7s ease;
+            transition: box-shadow 0.5s ease, background 0.7s ease;
         }
 
         .chrono-inner {
@@ -346,7 +370,7 @@
         .time-text {
             position: relative;
             z-index: 20;
-            font-size: 5rem;
+            font-size: clamp(2.4rem, 8vmin, 5rem);
             font-weight: 300;
             line-height: 1;
             letter-spacing: 2px;
@@ -359,15 +383,16 @@
             text-shadow: 2px 2px 6px rgba(0,0,0,0.35), -1px -1px 2px rgba(255,255,255,0.06);
         }
 
-        .time-text.long { font-size: 3.5rem; }
+        .time-text.long { font-size: clamp(1.8rem, 5.5vmin, 3.5rem); }
 
         /* ─── Трекер циклов ──────────────────────────────────────────────────── */
         .dots-container {
             display: flex;
             gap: 10px;
-            margin-bottom: 26px;
+            margin-bottom: 14px;
             justify-content: center;
             height: 14px;
+            flex-shrink: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -391,6 +416,7 @@
             gap: 24px;
             width: 100%;
             justify-content: center;
+            flex-shrink: 0;
             transition: all 0.5s ease;
         }
 
@@ -505,6 +531,9 @@
         .card-chrome-bottom {
             position: relative;
             margin-top: 4px;
+            flex-shrink: 1;
+            min-height: 0;
+            width: 100%;
         }
 
         body.zen-mode .timer-stage {
@@ -514,6 +543,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: 28px;
+            padding: 24px 20px 32px;
             z-index: 100;
             pointer-events: none;
         }
@@ -533,8 +564,10 @@
         }
 
         body.zen-mode .chrono-outer {
-            transform: scale(1.4);
-            margin-bottom: 36px;
+            width: min(300px, 42vh, 78vw);
+            height: min(300px, 42vh, 78vw);
+            margin-bottom: 0;
+            flex-shrink: 0;
             box-shadow:
                 0 20px 40px rgba(0, 0, 0, 0.12),
                 0 -20px 40px #ffffff;
@@ -547,14 +580,17 @@
         }
 
         body.zen-mode .controls {
-            transform: none;
+            margin-top: 0;
             gap: 20px;
+            flex-shrink: 0;
         }
 
         /* ─── Панель «Атмосфера» ─────────────────────────────────────────────── */
         .atmosphere-section {
             width: 100%;
-            margin-top: 24px;
+            margin-top: 12px;
+            flex-shrink: 1;
+            min-height: 0;
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -620,7 +656,8 @@
         .atmosphere-panel.open {
             max-height: 200px;
             opacity: 1;
-            margin-top: 18px;
+            margin-top: 14px;
+            overflow: visible;
         }
 
         .atmosphere-grid {
@@ -628,6 +665,9 @@
             grid-template-columns: repeat(5, 1fr);
             gap: 12px;
             justify-items: center;
+            padding: 6px 4px 8px;
+            background: transparent;
+            overflow: visible;
         }
 
         .sound-btn {
@@ -643,7 +683,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease, background 0.7s ease, box-shadow 0.7s ease;
+            flex-shrink: 0;
+            isolation: isolate;
+            transition: color 0.3s ease, background 0.7s ease, box-shadow 0.7s ease, transform 0.3s ease;
         }
 
         .sound-btn svg {
@@ -689,17 +731,31 @@
 
         /* ─── Адаптив ────────────────────────────────────────────────────────── */
         @media (max-width: 480px) {
-            .app-card.card { padding: 35px 20px 28px; border-radius: 32px; }
-            .chrono-outer   { width: 250px; height: 250px; }
-            .time-text      { font-size: 4rem; }
-            .time-text.long { font-size: 2.8rem; }
+            body { padding: 8px; }
+            .app-shell { max-height: calc(100vh - 16px); }
+            .app-card.card { padding: 22px 16px 16px; border-radius: 32px; }
+            .chrono-outer   { width: min(250px, 34vh, 70vw); height: min(250px, 34vh, 70vw); }
             .mode-btn       { padding: 11px 10px; font-size: 0.78rem; }
             .btn            { padding: 15px 20px; font-size: 0.9rem; }
             .header-title   { font-size: 1.3rem; }
             .sound-btn      { width: 44px; height: 44px; }
             .atmosphere-grid { gap: 10px; }
             .zen-switch     { top: 14px; right: 16px; }
-            body.zen-mode .chrono-outer { transform: scale(1.25); margin-bottom: 28px; }
+            body.zen-mode .timer-stage { gap: 22px; padding: 20px 16px 28px; }
+            body.zen-mode .chrono-outer { width: min(260px, 40vh, 76vw); height: min(260px, 40vh, 76vw); }
+        }
+
+        @media (max-height: 720px) {
+            .app-card.card { padding: 20px 24px 16px; }
+            .header { margin-bottom: 10px; }
+            .header-logo { width: 40px; height: 40px; }
+            .header-title { font-size: 1.25rem; }
+            .modes-grid { margin-bottom: 8px; }
+            .submenu-container { min-height: 36px; margin-bottom: 8px; }
+            .chrono-outer { margin-bottom: 10px; }
+            .dots-container { margin-bottom: 10px; }
+            .atmosphere-section { margin-top: 8px; }
+            .btn { padding: 14px 20px; }
         }
     </style>
 </head>
@@ -737,9 +793,9 @@
 
             <!-- ── Сетка режимов 2×2 ──────────────────────────────────────── -->
             <nav class="modes-grid" aria-label="Режимы таймера">
-                <button class="mode-btn active" data-mode="work" aria-pressed="true">Работа</button>
-                <button class="mode-btn" data-mode="rest" aria-pressed="false">Отдых</button>
-                <button class="mode-btn" data-mode="pomodoro" aria-pressed="false">
+                <button class="mode-btn active" data-mode="work" aria-pressed="true" title="Рабочий режим — задайте часы и минуты">Работа</button>
+                <button class="mode-btn" data-mode="rest" aria-pressed="false" title="Режим отдыха — настройка длительности перерыва">Отдых</button>
+                <button class="mode-btn" data-mode="pomodoro" aria-pressed="false" title="Pomodoro — интервалы работы и отдыха с циклами">
                     Pomodoro
                     <span class="mode-info" tabindex="0" role="button" aria-label="Подробнее о Pomodoro">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -750,7 +806,7 @@
                         <span class="mode-tooltip">Метод интервальной работы: 25 минут полного фокуса и 5 минут отдыха (или 50/10 для глубоких задач). Помогает не отвлекаться и предотвращает выгорание.</span>
                     </span>
                 </button>
-                <button class="mode-btn" data-mode="lesson" aria-pressed="false">Урок</button>
+                <button class="mode-btn" data-mode="lesson" aria-pressed="false" title="Режим урока — 40 или 45 минут с циклами">Урок</button>
             </nav>
 
             <div id="submenuContainer" class="submenu-container" aria-label="Настройки выбранного режима"></div>
