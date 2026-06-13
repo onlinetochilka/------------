@@ -31,12 +31,23 @@ const SOUND_ICONS = {
 };
 
 const PROMO_APPS = [
-    { app_name: 'fractions', label: 'Тренажёр дробей', badge: 'Скоро' },
-    { app_name: 'quizzes',  label: 'Квизы',           badge: 'Скоро' },
-    { app_name: 'soon',     label: 'Скоро...',        badge: 'Скоро' },
+    { app_name: 'handwriting_generator', label: 'Генератор прописей' },
+    { app_name: 'ruling_generator', label: 'Генератор разлиновки' },
+    { app_name: 'oral_math_randomizer', label: 'Рандомайзер устного счета' },
+    { app_name: 'reading_technique_analyzer', label: 'Анализатор техники чтения' },
+    { app_name: 'dictation_constructor', label: 'Конструктор словарных диктантов' },
+    { app_name: 'student_profile', label: 'Характеристика ученика' },
+    { app_name: 'seating_generator', label: 'Генератор рассадки' },
+    { app_name: 'crossword_constructor', label: 'Конструктор кроссвордов' },
+    { app_name: 'teen_slang_dictionary', label: 'Словарь подросткового сленга' },
+    { app_name: 'tutor_efficiency', label: 'Оценка эффективности репетитора' },
+    { app_name: 'career_orientation_test', label: 'Тест на профориентацию' },
+    { app_name: 'deadline_tracker', label: 'Трекер дедлайнов' },
+    { app_name: 'worksheet_generator', label: 'Генератор рабочих листов' },
+    { app_name: 'coming_soon', label: 'Продолжение следует...' },
 ];
 
-const PROMO_MOBILE_BREAKPOINT = 1024;
+const PROMO_DESKTOP_BREAKPOINT = 1024;
 
 const COLOR_WORK = 'var(--brand-teal)';
 const COLOR_REST = 'var(--color-rest)';
@@ -103,8 +114,6 @@ class PomodoroApp {
     #ambientPreFinishVolume = 0.35;
 
     #isZenMode = false;
-    #promoSheetOpen = false;
-    #promoSwipeStartY = null;
 
     #state = {
         currentMode: 'work',
@@ -178,11 +187,12 @@ class PomodoroApp {
     constructor() {
         this.#bindElements();
         this.#buildAtmosphereGrid();
-        this.#buildPromoLists();
+        this.#buildPromoCards();
         this.#initWorker();
         this.#bindEvents();
         this.#bindExtrasEvents();
         this.#bindPromoEvents();
+        this.#bindPromoScroll();
         this.#renderSubmenu();
         this.#updateRestModeClass();
         this.#resetTimer();
@@ -203,15 +213,8 @@ class PomodoroApp {
             atmosphereToggle: $('atmosphereToggle'),
             atmospherePanel:  $('atmospherePanel'),
             atmosphereGrid:   $('atmosphereGrid'),
-            promoWrap:        $('promoWrap'),
-            promoDrawerPen:   $('promoDrawerPen'),
-            promoDrawerTab:   $('promoDrawerTab'),
-            promoDrawerList:  $('promoDrawerList'),
-            promoSheet:       $('promoSheet'),
-            promoSheetPanel:  $('promoSheetPanel'),
-            promoSheetList:   $('promoSheetList'),
-            promoSheetBackdrop: $('promoSheetBackdrop'),
-            promoSheetClose:  $('promoSheetClose'),
+            glassDrawer:      $('glassDrawer'),
+            glassDrawerScroll: $('glassDrawerScroll'),
         };
 
         const r = this.#els.progressCircle.r.baseVal.value;
@@ -220,82 +223,81 @@ class PomodoroApp {
         this.#els.progressCircle.style.strokeDashoffset = '0';
     }
 
-    #buildPromoLists() {
-        const itemHtml = PROMO_APPS.map(({ app_name, label, badge }) =>
-            `<button class="promo-drawer__item" type="button" data-app-name="${app_name}" role="listitem">
-                <span class="promo-drawer__item-name">${label}</span>
-                <span class="promo-drawer__badge">${badge}</span>
-            </button>`
-        ).join('');
+    #buildPromoCards() {
+        const { glassDrawerScroll } = this.#els;
+        if (!glassDrawerScroll) return;
 
-        this.#els.promoDrawerList.innerHTML = itemHtml;
-        this.#els.promoSheetList.innerHTML = itemHtml;
+        glassDrawerScroll.innerHTML = PROMO_APPS.map(({ app_name, label }) =>
+            `<button class="glass-drawer__card" type="button" data-app-name="${app_name}">${label}</button>`
+        ).join('');
     }
 
     #bindPromoEvents() {
-        const { promoWrap, promoDrawerTab, promoSheet, promoSheetBackdrop, promoSheetClose, promoSheetPanel } = this.#els;
+        const { glassDrawer } = this.#els;
+        if (!glassDrawer) return;
 
-        const onPromoClick = (e) => {
+        glassDrawer.addEventListener('click', (e) => {
             const card = e.target.closest('[data-app-name]');
             if (!card || this.#state.isRunning) return;
+            if (window.innerWidth < PROMO_DESKTOP_BREAKPOINT) return;
             this.#handlePromoClick(card.dataset.appName);
+        });
+    }
+
+    #bindPromoScroll() {
+        const scroll = this.#els.glassDrawerScroll;
+        if (!scroll) return;
+
+        let rafId = null;
+        let direction = 1;
+        let paused = false;
+
+        const canScroll = () => scroll.scrollHeight - scroll.clientHeight > 1;
+
+        const tick = () => {
+            if (!paused && canScroll()) {
+                const max = scroll.scrollHeight - scroll.clientHeight;
+                scroll.scrollTop += direction * 0.5;
+
+                if (scroll.scrollTop >= max) {
+                    scroll.scrollTop = max;
+                    direction = -1;
+                } else if (scroll.scrollTop <= 0) {
+                    scroll.scrollTop = 0;
+                    direction = 1;
+                }
+            }
+            rafId = requestAnimationFrame(tick);
         };
 
-        promoWrap.addEventListener('click', onPromoClick);
-        promoSheet.addEventListener('click', onPromoClick);
+        const start = () => {
+            if (!canScroll() || rafId) return;
+            rafId = requestAnimationFrame(tick);
+        };
 
-        promoDrawerTab.addEventListener('click', () => {
-            if (this.#state.isRunning || window.innerWidth >= PROMO_MOBILE_BREAKPOINT) return;
-            this.#openPromoSheet();
+        const stop = () => {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            paused = false;
+        };
+
+        scroll.addEventListener('mouseenter', start);
+        scroll.addEventListener('mouseleave', stop);
+
+        scroll.addEventListener('mouseover', (e) => {
+            paused = !!e.target.closest('.glass-drawer__card');
         });
 
-        promoSheetBackdrop.addEventListener('click', () => this.#closePromoSheet());
-        promoSheetClose.addEventListener('click', () => this.#closePromoSheet());
-
-        promoSheetPanel.addEventListener('touchstart', (e) => {
-            this.#promoSwipeStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        promoSheetPanel.addEventListener('touchmove', (e) => {
-            if (this.#promoSwipeStartY === null) return;
-            const deltaY = e.touches[0].clientY - this.#promoSwipeStartY;
-            if (deltaY > 60) {
-                this.#promoSwipeStartY = null;
-                this.#closePromoSheet();
-            }
-        }, { passive: true });
-
-        promoSheetPanel.addEventListener('touchend', () => {
-            this.#promoSwipeStartY = null;
-        }, { passive: true });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.#promoSheetOpen) {
-                this.#closePromoSheet();
-            }
+        scroll.addEventListener('mouseout', (e) => {
+            if (!scroll.contains(e.relatedTarget)) return;
+            paused = !!e.relatedTarget.closest('.glass-drawer__card');
         });
     }
 
     #handlePromoClick(appName) {
         reachGoal('promo_click', { app_name: appName });
-    }
-
-    #openPromoSheet() {
-        if (this.#state.isRunning) return;
-        const { promoSheet, promoDrawerTab } = this.#els;
-        this.#promoSheetOpen = true;
-        promoSheet.classList.add('is-open');
-        promoSheet.setAttribute('aria-hidden', 'false');
-        promoDrawerTab.setAttribute('aria-expanded', 'true');
-    }
-
-    #closePromoSheet() {
-        if (!this.#promoSheetOpen) return;
-        const { promoSheet, promoDrawerTab } = this.#els;
-        this.#promoSheetOpen = false;
-        promoSheet.classList.remove('is-open');
-        promoSheet.setAttribute('aria-hidden', 'true');
-        promoDrawerTab.setAttribute('aria-expanded', 'false');
     }
 
     #buildAtmosphereGrid() {
@@ -761,35 +763,20 @@ class PomodoroApp {
             brandLogo.classList.remove('running');
         }
 
-        this.#syncPromoDrawer();
+        this.#syncGlassDrawer();
     }
 
-    #syncPromoDrawer() {
-        const { promoWrap, promoDrawerPen, promoDrawerTab } = this.#els;
-        if (!promoWrap) return;
+    #syncGlassDrawer() {
+        const { glassDrawer } = this.#els;
+        if (!glassDrawer) return;
 
         const blocked = this.#state.isRunning;
-        promoWrap.classList.toggle('is-blocked', blocked);
-        promoWrap.setAttribute('aria-hidden', blocked ? 'true' : 'false');
+        glassDrawer.classList.toggle('is-blocked', blocked);
+        glassDrawer.setAttribute('aria-hidden', blocked ? 'true' : 'false');
 
-        if (promoDrawerPen) {
-            promoDrawerPen.setAttribute('aria-hidden', blocked ? 'true' : 'false');
-        }
-
-        if (promoDrawerTab) {
-            promoDrawerTab.setAttribute('tabindex', blocked ? '-1' : '0');
-            if (blocked) promoDrawerTab.setAttribute('aria-expanded', 'false');
-        }
-
-        promoWrap.querySelectorAll('[data-app-name]').forEach((el) => {
+        glassDrawer.querySelectorAll('[data-app-name]').forEach((el) => {
             el.setAttribute('tabindex', blocked ? '-1' : '0');
         });
-
-        this.#els.promoSheet?.querySelectorAll('[data-app-name]').forEach((el) => {
-            el.setAttribute('tabindex', blocked ? '-1' : '0');
-        });
-
-        if (blocked) this.#closePromoSheet();
     }
 
     #resetTimer() {

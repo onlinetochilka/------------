@@ -98,10 +98,24 @@
             display: flex;
             flex-direction: column;
             min-height: 0;
+            overflow: visible;
         }
 
-        /* ─── Карточка ──────────────────────────────────────────────────────── */
+        /* ─── Стек слоёв: панель (низ) + таймер (верх) ─────────────────────── */
+        .timer-stack {
+            position: relative;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+        }
+
+        /* ─── Карточка (Элемент А — поверх панели) ─────────────────────────── */
         .app-card.card {
+            position: relative;
+            z-index: 2;
             background: var(--bg-color);
             border-radius: 40px;
             padding: 28px 30px 22px;
@@ -114,16 +128,22 @@
             align-items: center;
             min-height: 0;
             overflow: visible;
-            position: relative;
             transition: background 0.7s ease, box-shadow 0.7s ease, border-radius 0.5s ease;
         }
 
-        .app-card.card > .card-chrome,
-        .app-card.card > .timer-stage,
-        .app-card.card > .card-chrome-bottom {
+        .timer-top-layer {
             position: relative;
-            z-index: 1;
             width: 100%;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 0;
+            transition: background 0.7s ease;
+        }
+
+        body.zen-mode .timer-top-layer {
+            background: transparent;
         }
 
         .card-chrome {
@@ -353,10 +373,13 @@
             margin: auto 0;
             padding: 24px 0;
             gap: 16px;
+            overflow: visible;
             transition: all 0.5s ease-in-out;
         }
 
         .chrono-outer {
+            position: relative;
+            z-index: 2;
             width: min(290px, 36vh, 72vw);
             height: min(290px, 36vh, 72vw);
             flex-shrink: 0;
@@ -430,6 +453,8 @@
 
         /* ─── Трекер циклов ──────────────────────────────────────────────────── */
         .dots-container {
+            position: relative;
+            z-index: 2;
             display: flex;
             gap: 10px;
             margin-top: 0;
@@ -819,337 +844,227 @@
             .btn { padding: 14px 20px; }
         }
 
-        /* ─── Glass Drawer (промо-пенал) ───────────────────────────────────── */
-        .promo-wrap {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .promo-drawer {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: -1;
-            pointer-events: auto;
-        }
-
-        .promo-drawer__tab {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
+        /* ─── Pomodoro dial container ─────────────────────────────────────────── */
+        .pomodoro-container {
+            position: relative;
             z-index: 2;
-            width: 26px;
-            height: 88px;
-            padding: 10px 4px;
-            border: 1px solid rgba(255, 255, 255, 0.55);
-            border-left: none;
-            border-radius: 0 12px 12px 0;
-            background: rgba(255, 255, 255, 0.38);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 3px 0 14px rgba(184, 194, 209, 0.22);
-            color: var(--text-muted);
-            cursor: pointer;
-            pointer-events: auto;
-            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .promo-drawer__tab-label {
-            display: block;
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            font-size: 0.62rem;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            line-height: 1;
-        }
-
-        .promo-drawer__pen {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 210px;
-            max-height: min(320px, 52vh);
-            display: flex;
-            flex-direction: column;
-            padding: 14px 12px 12px;
-            background: rgba(255, 255, 255, 0.44);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.62);
-            border-left: none;
-            border-radius: 0 18px 18px 0;
-            box-shadow: 6px 0 28px rgba(184, 194, 209, 0.28);
-            transform: translate(0, -50%);
-            transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .promo-drawer__scroll,
-        .promo-sheet__scroll {
+            background: var(--bg-color);
+            width: 100%;
             flex: 1 1 auto;
-            min-height: 0;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding-right: 2px;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(116, 125, 140, 0.35) transparent;
-        }
-
-        .promo-drawer__scroll::-webkit-scrollbar,
-        .promo-sheet__scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .promo-drawer__scroll::-webkit-scrollbar-thumb,
-        .promo-sheet__scroll::-webkit-scrollbar-thumb {
-            background: rgba(116, 125, 140, 0.35);
-            border-radius: 4px;
-        }
-
-        .promo-drawer__list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        .promo-drawer__item {
-            display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.32);
-            color: var(--text-main);
-            font-size: 0.84rem;
-            font-weight: 600;
-            text-align: left;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: box-shadow 0.25s ease, transform 0.25s ease, background 0.25s ease;
+            justify-content: center;
+            min-height: 0;
+            overflow: visible;
+            transition: background 0.7s ease;
         }
 
-        .promo-drawer__item:hover {
-            box-shadow: var(--shadow-sm);
-            transform: translateY(-1px);
+        body.zen-mode .pomodoro-container {
+            background: transparent;
         }
 
-        .promo-drawer__item-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        /* ─── Glass Drawer — Элемент Б (под карточкой таймера) ─────────────── */
+        .glass-drawer {
+            --drawer-tab-w: 40px;
+            --drawer-panel-w: 252px;
+            --glass-bg: rgba(255, 255, 255, 0.38);
+            --glass-border: rgba(255, 255, 255, 0.72);
+            --glass-shine: inset 0 1px 1px rgba(255, 255, 255, 0.95);
+            --glass-depth: inset 0 -12px 28px rgba(255, 255, 255, 0.28);
+            --glass-glow: inset 2px 2px 12px rgba(255, 255, 255, 0.42);
+
+            position: absolute;
+            z-index: 1;
+            right: calc(-1 * var(--drawer-tab-w));
+            top: 75%;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            width: calc(var(--drawer-panel-w) + var(--drawer-tab-w));
+            height: 33%;
+            min-height: 150px;
+            max-height: 220px;
+            transform: translateY(-50%) translateX(0);
+            transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: auto;
         }
 
-        .promo-drawer__badge {
-            flex-shrink: 0;
-            font-size: 0.58rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: var(--brand-teal);
-            background: rgba(0, 101, 132, 0.1);
-            border: 1px solid rgba(0, 101, 132, 0.16);
-            padding: 2px 6px;
-            border-radius: 5px;
+        @media (hover: hover) {
+            .glass-drawer:hover:not(.is-blocked),
+            .glass-drawer:focus-within:not(.is-blocked) {
+                transform: translateY(-50%) translateX(var(--drawer-panel-w));
+            }
         }
 
-        .promo-drawer__platform {
-            flex-shrink: 0;
-            width: 100%;
-            padding: 13px 14px;
-            border: 1px solid rgba(0, 101, 132, 0.28);
-            border-radius: 12px;
-            background: rgba(0, 101, 132, 0.18);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            color: var(--brand-teal);
-            font-size: 0.86rem;
-            font-weight: 700;
-            text-align: center;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+        .glass-drawer.is-blocked {
+            transform: translateY(-50%) translateX(calc(var(--drawer-panel-w) + var(--drawer-tab-w)));
+            pointer-events: none;
+            visibility: hidden;
         }
 
-        .promo-drawer__platform:hover {
-            background: rgba(0, 101, 132, 0.28);
-            box-shadow: 0 4px 16px rgba(0, 101, 132, 0.18);
-            transform: translateY(-1px);
-        }
-
-        .promo-wrap.is-blocked {
+        body.zen-mode .glass-drawer {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
 
-        .promo-wrap.is-blocked .promo-drawer__pen {
-            transform: translate(0, -50%);
+        .glass-drawer__panel {
+            flex: 1 1 auto;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            border-radius: 20px 0 0 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(36px) saturate(1.8);
+            -webkit-backdrop-filter: blur(36px) saturate(1.8);
+            border: 1px solid var(--glass-border);
+            border-right: none;
+            box-shadow:
+                var(--glass-shine),
+                var(--glass-depth),
+                var(--glass-glow),
+                0 8px 32px rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            pointer-events: none;
         }
 
-        /* Десктоп: hover выезжает вбок */
-        @media (min-width: 1024px) {
-            .promo-sheet { display: none !important; }
-
-            .promo-wrap:hover .promo-drawer__tab,
-            .promo-wrap:focus-within .promo-drawer__tab {
-                background: rgba(255, 255, 255, 0.52);
-                color: var(--brand-teal);
-            }
-
-            .promo-wrap:hover .promo-drawer__pen,
-            .promo-wrap:focus-within .promo-drawer__pen {
-                transform: translate(calc(-100% + 26px), -50%);
-            }
+        .glass-drawer:hover:not(.is-blocked) .glass-drawer__panel,
+        .glass-drawer:focus-within:not(.is-blocked) .glass-drawer__panel {
+            pointer-events: auto;
         }
 
-        /* Мобилки: ярлычок снизу + bottom sheet */
+        .glass-drawer__scroll {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 8px 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .glass-drawer__scroll::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        .glass-drawer__card {
+            flex-shrink: 0;
+            width: 100%;
+            min-height: 0;
+            padding: 12px 14px;
+            border: none;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(16px) saturate(1.6);
+            -webkit-backdrop-filter: blur(16px) saturate(1.6);
+            color: var(--text-main);
+            font-size: 0.78rem;
+            font-weight: 600;
+            line-height: 1.4;
+            text-align: left;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: normal;
+            hyphens: auto;
+            cursor: pointer;
+            box-shadow:
+                0 4px 16px rgba(255, 255, 255, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.82);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-drawer__card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.58);
+            box-shadow:
+                0 8px 22px rgba(255, 255, 255, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .glass-drawer__all-btn {
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            margin: 0;
+            padding: 13px 14px;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 0;
+            background: rgba(0, 101, 132, 0.48);
+            backdrop-filter: blur(14px) saturate(1.5);
+            -webkit-backdrop-filter: blur(14px) saturate(1.5);
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            line-height: 1.3;
+            white-space: normal;
+            text-align: center;
+            cursor: pointer;
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 4px 18px rgba(0, 101, 132, 0.22);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-drawer__all-btn:hover {
+            background: rgba(0, 101, 132, 0.64);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.38),
+                0 6px 22px rgba(0, 101, 132, 0.32);
+        }
+
+        .glass-drawer__tab {
+            flex: 0 0 var(--drawer-tab-w);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 6px;
+            border-radius: 0 18px 18px 0;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.25;
+            color: var(--text-main);
+            background: var(--glass-bg);
+            backdrop-filter: blur(36px) saturate(1.8);
+            -webkit-backdrop-filter: blur(36px) saturate(1.8);
+            border: 1px solid var(--glass-border);
+            border-left: 1px solid rgba(255, 255, 255, 0.4);
+            user-select: none;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow:
+                var(--glass-shine),
+                var(--glass-depth),
+                var(--glass-glow),
+                4px 0 24px rgba(255, 255, 255, 0.14);
+        }
+
+        body.rest-mode .glass-drawer {
+            --glass-bg: rgba(255, 255, 255, 0.14);
+            --glass-border: rgba(255, 255, 255, 0.32);
+        }
+
+        body.rest-mode .glass-drawer__card {
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
         @media (max-width: 1023px) {
-            .promo-drawer { display: none; }
-
-            .promo-drawer__tab {
-                left: 50%;
-                top: auto;
-                bottom: -14px;
-                transform: translateX(-50%);
-                width: 88px;
-                height: 26px;
-                padding: 4px 10px;
-                border-left: 1px solid rgba(255, 255, 255, 0.55);
-                border-top: none;
-                border-radius: 0 0 12px 12px;
-                box-shadow: 0 3px 14px rgba(184, 194, 209, 0.22);
-            }
-
-            .promo-drawer__tab-label {
-                writing-mode: horizontal-tb;
-                transform: none;
-                font-size: 0.58rem;
-                letter-spacing: 0.6px;
-            }
-
-            .promo-sheet {
-                position: fixed;
-                inset: 0;
-                z-index: 400;
-                pointer-events: none;
-                visibility: hidden;
-            }
-
-            .promo-sheet.is-open {
-                pointer-events: auto;
-                visibility: visible;
-            }
-
-            .promo-sheet__backdrop {
-                position: absolute;
-                inset: 0;
-                background: rgba(45, 52, 54, 0.35);
-                opacity: 0;
-                transition: opacity 0.35s ease;
-            }
-
-            .promo-sheet.is-open .promo-sheet__backdrop {
-                opacity: 1;
-            }
-
-            .promo-sheet__panel {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                max-height: min(72vh, 520px);
-                display: flex;
-                flex-direction: column;
-                padding: 10px 18px max(18px, env(safe-area-inset-bottom, 0px));
-                background: rgba(255, 255, 255, 0.88);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.7);
-                border-bottom: none;
-                border-radius: 22px 22px 0 0;
-                box-shadow: 0 -8px 40px rgba(184, 194, 209, 0.35);
-                transform: translateY(100%);
-                transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .promo-sheet.is-open .promo-sheet__panel {
-                transform: translateY(0);
-            }
-
-            .promo-sheet__handle {
-                width: 36px;
-                height: 4px;
-                margin: 0 auto 12px;
-                border-radius: 2px;
-                background: rgba(116, 125, 140, 0.35);
-            }
-
-            .promo-sheet__title {
-                font-size: 0.72rem;
-                font-weight: 700;
-                letter-spacing: 1.2px;
-                text-transform: uppercase;
-                color: var(--text-muted);
-                margin-bottom: 12px;
-                text-align: center;
-            }
-
-            .promo-sheet__close {
-                position: absolute;
-                top: 12px;
-                right: 14px;
-                width: 32px;
-                height: 32px;
-                border: none;
-                border-radius: 50%;
-                background: rgba(224, 229, 236, 0.8);
-                color: var(--text-muted);
-                font-size: 1.25rem;
-                line-height: 1;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: background 0.2s ease, color 0.2s ease;
-            }
-
-            .promo-sheet__close:hover {
-                background: rgba(224, 229, 236, 1);
-                color: var(--text-main);
-            }
-
-            .promo-sheet__platform {
-                margin-top: 4px;
-            }
-        }
-
-        body.rest-mode .promo-drawer__tab {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.14);
-        }
-
-        body.rest-mode .promo-drawer__pen {
-            background: rgba(30, 38, 52, 0.62);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-
-        body.rest-mode .promo-drawer__item {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        body.rest-mode .promo-sheet__panel {
-            background: rgba(28, 36, 51, 0.92);
-            border-color: rgba(255, 255, 255, 0.1);
+            .glass-drawer { display: none !important; }
         }
     </style>
 </head>
@@ -1165,52 +1080,31 @@
             <span class="zen-label">Фокус</span>
         </label>
 
-        <!-- ── Карточка ─────────────────────────────────────────────────────── -->
-        <div class="app-card card" role="main">
+        <!-- ── Стек: панель (низ) + таймер (верх) ───────────────────────────── -->
+        <div class="timer-stack">
 
-            <!-- ── Glass Drawer: промо-пенал из-под карточки ───────────────── -->
-            <div class="promo-wrap" id="promoWrap">
-                <div class="promo-drawer" id="promoDrawer" aria-label="Другие приложения Точилки">
-                    <div class="promo-drawer__pen" id="promoDrawerPen" aria-hidden="true">
-                        <div class="promo-drawer__scroll">
-                            <div class="promo-drawer__list" id="promoDrawerList" role="list"></div>
-                        </div>
-                        <button class="promo-drawer__platform" type="button" data-app-name="main_platform">
-                            На главную платформу
-                        </button>
-                    </div>
+            <!-- Элемент Б: выезжающая панель (z-index: 1) -->
+            <aside
+                class="glass-drawer"
+                id="glassDrawer"
+                aria-label="Другие приложения Точилки"
+                aria-hidden="false"
+            >
+                <div class="glass-drawer__panel" id="glassDrawerPanel">
+                    <button
+                        class="glass-drawer__all-btn"
+                        type="button"
+                        data-app-name="all_services"
+                    >Все приложения Точилки</button>
+                    <div class="glass-drawer__scroll" id="glassDrawerScroll"></div>
                 </div>
-                <button
-                    class="promo-drawer__tab"
-                    id="promoDrawerTab"
-                    type="button"
-                    aria-expanded="false"
-                    aria-controls="promoDrawerPen promoSheetPanel"
-                >
-                    <span class="promo-drawer__tab-label">[ПРОМО_ТЕКСТ]</span>
-                </button>
-            </div>
+                <span class="glass-drawer__tab" id="glassDrawerTab" aria-hidden="true">Сменить фокус</span>
+            </aside>
 
-            <div class="promo-sheet" id="promoSheet" aria-hidden="true">
-                <div class="promo-sheet__backdrop" id="promoSheetBackdrop"></div>
-                <div
-                    class="promo-sheet__panel"
-                    id="promoSheetPanel"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="promoSheetTitle"
-                >
-                    <button class="promo-sheet__close" id="promoSheetClose" type="button" aria-label="Закрыть">&times;</button>
-                    <div class="promo-sheet__handle" aria-hidden="true"></div>
-                    <h2 class="promo-sheet__title" id="promoSheetTitle">Ещё от Точилки</h2>
-                    <div class="promo-sheet__scroll">
-                        <div class="promo-drawer__list" id="promoSheetList" role="list"></div>
-                    </div>
-                    <button class="promo-drawer__platform promo-sheet__platform" type="button" data-app-name="main_platform">
-                        На главную платформу
-                    </button>
-                </div>
-            </div>
+            <!-- Элемент А: карточка таймера (z-index: 2) -->
+            <div class="app-card card" role="main">
+
+            <div class="timer-top-layer">
 
             <div class="card-chrome">
 
@@ -1254,6 +1148,7 @@
             <!-- ── Сцена таймера (центрируется в zen-mode) ─────────────────── -->
             <div class="timer-stage" id="timerStage">
             <div class="timer-dial-wrap">
+            <div class="pomodoro-container" id="pomodoroContainer">
             <div class="chrono-outer" aria-hidden="true">
                 <div class="chrono-inner" id="chronoInner">
                     <svg class="chrono-ticks" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -1275,6 +1170,7 @@
             </div>
 
             <div id="dotsContainer" class="dots-container" aria-label="Прогресс циклов"></div>
+            </div><!-- /.pomodoro-container -->
             </div><!-- /.timer-dial-wrap -->
 
             <div class="controls">
@@ -1300,7 +1196,11 @@
             </div>
             </div><!-- /.card-chrome-bottom -->
 
-        </div><!-- /.app-card -->
+            </div><!-- /.timer-top-layer -->
+
+            </div><!-- /.app-card -->
+
+        </div><!-- /.timer-stack -->
 
     </div><!-- /.app-shell -->
 
