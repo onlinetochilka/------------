@@ -104,7 +104,7 @@ function playAmbientAudio(playPromise, onSuccess) {
 class PomodoroApp {
     #worker = null;
 
-    #ambientAudio = null;
+    #ambientAudio = new Audio();
     #currentSoundId = null;
     #atmosphereEnabled = false;
     #fadeTimer = null;
@@ -114,6 +114,7 @@ class PomodoroApp {
     #ambientPreFinishVolume = 0.35;
 
     #isZenMode = false;
+    #notificationPermissionSettled = false;
 
     #state = {
         currentMode: 'work',
@@ -227,9 +228,10 @@ class PomodoroApp {
         const { glassDrawerScroll } = this.#els;
         if (!glassDrawerScroll) return;
 
-        glassDrawerScroll.innerHTML = PROMO_APPS.map(({ app_name, label }) =>
+        const cardsHtml = PROMO_APPS.map(({ app_name, label }) =>
             `<button class="glass-drawer__card" type="button" data-app-name="${app_name}">${label}</button>`
         ).join('');
+        glassDrawerScroll.insertAdjacentHTML('beforeend', cardsHtml);
     }
 
     #bindPromoEvents() {
@@ -248,51 +250,14 @@ class PomodoroApp {
         const scroll = this.#els.glassDrawerScroll;
         if (!scroll) return;
 
-        let rafId = null;
-        let direction = 1;
-        let paused = false;
+        scroll.addEventListener('mousemove', (e) => {
+            const maxScroll = scroll.scrollHeight - scroll.clientHeight;
+            if (maxScroll <= 0) return;
 
-        const canScroll = () => scroll.scrollHeight - scroll.clientHeight > 1;
+            const rect = scroll.getBoundingClientRect();
+            const percentage = (e.clientY - rect.top) / rect.height;
 
-        const tick = () => {
-            if (!paused && canScroll()) {
-                const max = scroll.scrollHeight - scroll.clientHeight;
-                scroll.scrollTop += direction * 0.5;
-
-                if (scroll.scrollTop >= max) {
-                    scroll.scrollTop = max;
-                    direction = -1;
-                } else if (scroll.scrollTop <= 0) {
-                    scroll.scrollTop = 0;
-                    direction = 1;
-                }
-            }
-            rafId = requestAnimationFrame(tick);
-        };
-
-        const start = () => {
-            if (!canScroll() || rafId) return;
-            rafId = requestAnimationFrame(tick);
-        };
-
-        const stop = () => {
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-                rafId = null;
-            }
-            paused = false;
-        };
-
-        scroll.addEventListener('mouseenter', start);
-        scroll.addEventListener('mouseleave', stop);
-
-        scroll.addEventListener('mouseover', (e) => {
-            paused = !!e.target.closest('.glass-drawer__card');
-        });
-
-        scroll.addEventListener('mouseout', (e) => {
-            if (!scroll.contains(e.relatedTarget)) return;
-            paused = !!e.relatedTarget.closest('.glass-drawer__card');
+            scroll.scrollTop = maxScroll * percentage;
         });
     }
 
@@ -505,23 +470,29 @@ class PomodoroApp {
     #showInputError(input) {
         input.classList.add('error');
         input.addEventListener('animationend', () => input.classList.remove('error'), { once: true });
-        setTimeout(() => input.classList.remove('error'), 1500);
     }
 
     async #initNotifications() {
-        if ('Notification' in window && Notification.permission === 'default') {
+        if (this.#notificationPermissionSettled) return;
+        if (!('Notification' in window)) { this.#notificationPermissionSettled = true; return; }
+
+        if (Notification.permission === 'default') {
             try { await Notification.requestPermission(); } catch { /* callback-API */ }
+        }
+
+        if (Notification.permission !== 'default') {
+            this.#notificationPermissionSettled = true;
         }
     }
 
     #duckAmbientForFinish() {
-        if (!this.#ambientAudio || this.#ambientAudio.paused) return;
+        if (this.#ambientAudio.paused) return;
 
         this.#ambientDuckedForFinish = true;
         this.#ambientPreFinishVolume = this.#ambientAudio.volume;
         this.#clearFadeTimer();
         this.#fadeVolume(this.#ambientAudio, this.#ambientAudio.volume, 0, FADE_MS, () => {
-            this.#ambientAudio?.pause();
+            this.#ambientAudio.pause();
         });
     }
 
@@ -529,7 +500,7 @@ class PomodoroApp {
         if (!this.#ambientDuckedForFinish) return;
         this.#ambientDuckedForFinish = false;
 
-        if (!this.#ambientAudio || !this.#currentSoundId || !this.#atmosphereEnabled) return;
+        if (!this.#currentSoundId || !this.#atmosphereEnabled) return;
 
         this.#ambientAudio.play().then(() => {
             this.#fadeVolume(this.#ambientAudio, 0, this.#ambientPreFinishVolume, FADE_MS);
@@ -604,29 +575,28 @@ class PomodoroApp {
     #setAmbientSound(id) {
         if (!AMBIENT_SOUNDS[id]) return;
 
-        if (this.#currentSoundId === id && this.#ambientAudio && !this.#ambientAudio.paused) return;
+        if (this.#currentSoundId === id && !this.#ambientAudio.paused) return;
 
-        const prevAudio = this.#ambientAudio;
+        const audio = this.#ambientAudio;
         const targetVol = 0.35;
 
         const startNew = () => {
-            this.#ambientAudio = new Audio(AMBIENT_SOUNDS[id].url);
-            this.#ambientAudio.loop = true;
-            this.#ambientAudio.volume = 0;
+            audio.src = AMBIENT_SOUNDS[id].url;
+            audio.loop = true;
+            audio.volume = 0;
             this.#currentSoundId = id;
 
-            playAmbientAudio(this.#ambientAudio.play(), () => {
+            playAmbientAudio(audio.play(), () => {
                 reachGoal('atmosphere_play', { track_name: id });
-                this.#fadeVolume(this.#ambientAudio, 0, targetVol, FADE_MS);
+                this.#fadeVolume(audio, 0, targetVol, FADE_MS);
             });
 
             this.#syncAmbientUI();
         };
 
-        if (prevAudio) {
-            this.#fadeVolume(prevAudio, prevAudio.volume, 0, FADE_MS, () => {
-                prevAudio.pause();
-                prevAudio.src = '';
+        if (!audio.paused) {
+            this.#fadeVolume(audio, audio.volume, 0, FADE_MS, () => {
+                audio.pause();
                 startNew();
             });
         } else {
@@ -636,13 +606,12 @@ class PomodoroApp {
 
     #stopAmbient() {
         this.#clearFadeTimer();
-        if (this.#ambientAudio) {
+        if (this.#currentSoundId) {
             const audio = this.#ambientAudio;
             this.#fadeVolume(audio, audio.volume, 0, FADE_MS, () => {
                 audio.pause();
                 audio.src = '';
             });
-            this.#ambientAudio = null;
         }
         this.#currentSoundId = null;
         this.#syncAmbientUI();
@@ -654,7 +623,7 @@ class PomodoroApp {
 
     #resumeAmbient() {
         if (this.#ambientDuckedForFinish) return;
-        if (this.#ambientAudio && this.#currentSoundId && this.#atmosphereEnabled) {
+        if (this.#currentSoundId && this.#atmosphereEnabled) {
             playAmbientAudio(this.#ambientAudio.play());
         }
     }
